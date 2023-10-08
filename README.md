@@ -24,6 +24,7 @@ wherever you like.
 Syntax such as:
 
 `snd2acm input.wav output.acm`
+
 `acm2snd input.acm output.wav`
 
 Works for all the included tools.
