@@ -1,7 +1,7 @@
-#include "stdafx.h"
 // Writes the RIFF header into a stream
 
 #include <stdio.h>
+#include <string.h>
 #include "riffhdr.h"
 
 RIFF_HEADER riff = {

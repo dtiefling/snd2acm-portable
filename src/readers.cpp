@@ -1,4 +1,3 @@
-#include "stdafx.h"
 // Classes for sound files.
 // Supported formats: PCM-RAW, PCM-WAV (both 8 and 16 bits),
 //   and Interplay's ACM.

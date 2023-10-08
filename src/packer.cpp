@@ -1,4 +1,3 @@
-#include "stdafx.h"
 // CValuePacker packs the values into an ACM-stream.
 
 // IP's packing algorithm is not optimal. For full compatibility uncomment the next line

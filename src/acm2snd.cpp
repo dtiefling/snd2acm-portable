@@ -1,4 +1,3 @@
-#include "stdafx.h"
 //acm2snd.cpp
 // Acm to Wav conversion
 #include <io.h>

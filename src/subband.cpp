@@ -1,4 +1,3 @@
-#include "stdafx.h"
 // Pyramidal Subband Coding Scheme.
 
 // Based on:

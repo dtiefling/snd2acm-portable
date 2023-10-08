@@ -1,4 +1,3 @@
-#include "stdafx.h"
 // snd2acm converter.
 
 #include <stdio.h>
@@ -6,8 +5,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <windows.h>
-#include <io.h>
 #include "subband.h"
 #include "readers.h"
 #include "packer.h"

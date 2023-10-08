@@ -1,8 +1,6 @@
-#include "stdafx.h"
 // CBitStream class provides the bit-output capabilities.
 
 #include <stdio.h>
-#include <io.h>
 #include "bitstream.h"
 
 void CBitStream::internal_flush() {

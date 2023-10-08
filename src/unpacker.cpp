@@ -1,4 +1,3 @@
-#include "stdafx.h"
 // IP's ACM-stream unpacker.
 
 #include <stdio.h>
