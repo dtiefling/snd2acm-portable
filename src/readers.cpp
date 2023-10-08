@@ -33,7 +33,7 @@ int CACMReader::init_reader () {
   subblocks = hdr.subblocks;
   
   block_size = (1 << levels) * subblocks;
-  block = new long [block_size]; if (!block) return 0;
+  block = new int32_t [block_size]; if (!block) return 0;
   unpacker = new CValueUnpacker (levels, subblocks, file, maxlen);
   if ( !unpacker || !unpacker->init_unpacker() ) return 0;
   decoder = new CSubbandDecoder (levels);
@@ -52,8 +52,8 @@ int CACMReader::make_new_samples() {
   samples_left -= samples_ready;
   return 1;
 }
-long CACMReader::read_samples (short* buffer, long count) {
-  long res = 0;
+int32_t CACMReader::read_samples (short* buffer, int32_t count) {
+  int32_t res = 0;
   while (res < count) {
     if (samples_ready == 0) {
       if (samples_left == 0) break;
@@ -69,7 +69,7 @@ long CACMReader::read_samples (short* buffer, long count) {
   return res;
 }
 
-CSoundReader* CreateSoundReader (int fhandle, int type, long bytes)
+CSoundReader* CreateSoundReader (int fhandle, int type, int32_t bytes)
 {
   CSoundReader* res = NULL;
   
@@ -103,9 +103,9 @@ int CRawPCMReader::init_reader () {
   return 1;
 }
 
-long CRawPCMReader::read_samples (short* buffer, long count) {
+int32_t CRawPCMReader::read_samples (short* buffer, int32_t count) {
   if (count > samples_left) count = samples_left;
-  long res = 0, i;
+  int32_t res = 0, i;
   if (count)
     res = fread (buffer, (is16bit)?2:1, count, file);
   if (is16bit) {
@@ -129,15 +129,15 @@ int CWavPCMReader::init_reader () {
   
   cWAVEFORMATEX fmt;
   RIFF_CHUNK r_hdr, fmt_hdr, data_hdr;
-  unsigned long wave;
+  uint32_t wave;
   memset (&fmt, 0, sizeof(fmt));
   fread (&r_hdr, 1, sizeof(r_hdr), file); fread (&wave, 1, 4, file);
-  if (r_hdr.fourcc != *(unsigned long*)RIFF_4cc || wave != *(unsigned long*)WAVE_4cc) {
+  if (r_hdr.fourcc != *(uint32_t*)RIFF_4cc || wave != *(uint32_t*)WAVE_4cc) {
     return 0;
   }
   
   fread (&fmt_hdr, 1, sizeof(fmt_hdr), file);
-  if (fmt_hdr.fourcc != *(unsigned long*)fmt_4cc || fmt_hdr.length > sizeof(cWAVEFORMATEX)) {
+  if (fmt_hdr.fourcc != *(uint32_t*)fmt_4cc || fmt_hdr.length > sizeof(cWAVEFORMATEX)) {
     return 0;
   }
   fread (&fmt, 1, fmt_hdr.length, file);
@@ -147,11 +147,11 @@ int CWavPCMReader::init_reader () {
   is16bit = (fmt.wBitsPerSample == 16);
   
   fread (&data_hdr, 1, sizeof(data_hdr), file);
-  if (data_hdr.fourcc == *(unsigned long*)fact_4cc) {
+  if (data_hdr.fourcc == *(uint32_t*)fact_4cc) {
     fseek (file, data_hdr.length, SEEK_CUR);
     fread (&data_hdr, 1, sizeof(data_hdr), file);
   }
-  if (data_hdr.fourcc != *(unsigned long*)data_4cc) {
+  if (data_hdr.fourcc != *(uint32_t*)data_4cc) {
     return 0;
   }
   

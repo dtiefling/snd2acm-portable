@@ -23,13 +23,13 @@ void CBitStream::internal_flush() {
 		shift -= bytes_ready;
 	}
 }
-void CBitStream::write_bits (unsigned long value, int count) {
+void CBitStream::write_bits (uint32_t value, int count) {
 	bits_written += count;
 
 	int total_bits = count + shift,
 		not_fit_bits = (total_bits > 32) ? total_bits - 32: 0;
 	count -= not_fit_bits;
-	unsigned long mask = (count == 32)? (0xFFFFFFFF): (1L << count) - 1;
+	uint32_t mask = (count == 32)? (0xFFFFFFFF): (1L << count) - 1;
 	accumulator |= ((value & mask) << shift);
 	shift += count;
 	internal_flush();
@@ -57,7 +57,7 @@ void CBitStream::flush() {
 	}
 }
 void CBitStream::drop_zeros() {
-	long zero = 0;
+	int32_t zero = 0;
 	while (seq_zeros) {
 		int to_write = (seq_zeros>4)? 4: seq_zeros;
 		fwrite (&zero, to_write, 1, file);

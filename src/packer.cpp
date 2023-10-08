@@ -30,7 +30,7 @@ double approx_len (int max, int plus_max) {
 }
 
 void CValuePacker::analyse (const short* block) {
-	long i, sub_number;
+	int32_t i, sub_number;
 	const short *block_ptr = block;
 	short *pblock_ptr = pblock;
 
@@ -207,7 +207,7 @@ int CValuePacker::init_packer() {
 	return 1;
 }
 
-long CValuePacker::flush_bit_stream() {
+int32_t CValuePacker::flush_bit_stream() {
 	bit_stream->flush();
 	return ( bit_stream->get_bytes_written() );
 }

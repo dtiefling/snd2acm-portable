@@ -23,9 +23,9 @@ int levels = 7, f_len = 11, subblocks = 16;
 int reader_type = SND_READER_AUTO;
 char tp = 'O';
 short* input_samples = NULL;
-long* coeffs = NULL;
+int32_t* coeffs = NULL;
 short* block_to_pack = NULL;
-long block_size, sb_size, samples;
+int32_t block_size, sb_size, samples;
 double bps_limit;
 
 bool set_type(char type)
@@ -61,13 +61,13 @@ int init(int maxlen, bool wavc_or_acm) {
 
 	bps_limit =COMPRESSION_RATE*((double)reader->get_bits()*samples/ceil((double)samples/block_size)/100.0);
 
-	packer = new CValuePacker (out_file, subblocks, sb_size, (long) bps_limit);
+	packer = new CValuePacker (out_file, subblocks, sb_size, (int32_t) bps_limit);
 	if ( !packer || !packer->init_packer() ) {
 		return 0;
 	}
 
 	input_samples = new short [HATCH_SIZE];
-	coeffs = new long [HATCH_SIZE];
+	coeffs = new int32_t [HATCH_SIZE];
 	block_to_pack = new short [block_size];
 	if ( !input_samples || !coeffs || !block_to_pack) {
 		return 0;
@@ -83,7 +83,7 @@ void finalize2() {
 	if (block_to_pack) delete block_to_pack;
 }
 
-int ConvertWavAcm(int fh, long maxlen, FILE *foutp, bool wavc_or_acm)
+int ConvertWavAcm(int fh, int32_t maxlen, FILE *foutp, bool wavc_or_acm)
 {
 //  bps_limit=-1.0;
   try {
@@ -98,17 +98,17 @@ int ConvertWavAcm(int fh, long maxlen, FILE *foutp, bool wavc_or_acm)
     }
     
     //Actual decoding section, with printf's removed
-    long left_to_pack = (long)ceil((double)samples/block_size)*block_size;
+    int32_t left_to_pack = (int32_t)ceil((double)samples/block_size)*block_size;
     short* cur_block_pos = block_to_pack;
-    long ready_to_pack = 0;
-    long* tmp_coeffs_pos;
-    long left_to_filter = samples + coder->get_init_size();
-    long warnings = 0, max_minus_warn = 0, max_plus_warn = 0, i;
+    int32_t ready_to_pack = 0;
+    int32_t* tmp_coeffs_pos;
+    int32_t left_to_filter = samples + coder->get_init_size();
+    int32_t warnings = 0, max_minus_warn = 0, max_plus_warn = 0, i;
     while (left_to_filter > 0) {
       // reading samples and filtering them
-      long next_portion = (left_to_filter > HATCH_SIZE)? HATCH_SIZE: left_to_filter;
+      int32_t next_portion = (left_to_filter > HATCH_SIZE)? HATCH_SIZE: left_to_filter;
       reader->read_samples (input_samples, next_portion);
-      long coeffs_gained = coder->filter_data (input_samples, next_portion, coeffs);
+      int32_t coeffs_gained = coder->filter_data (input_samples, next_portion, coeffs);
       
       // transferring the coefficients into block
       for (i=0, tmp_coeffs_pos = coeffs; i<coeffs_gained; i++, tmp_coeffs_pos++) {
@@ -141,7 +141,7 @@ int ConvertWavAcm(int fh, long maxlen, FILE *foutp, bool wavc_or_acm)
       left_to_pack -= block_size;
     }
     
-    long bytes_resulted = packer->flush_bit_stream() + sizeof (ACM_Header);
+    int32_t bytes_resulted = packer->flush_bit_stream() + sizeof (ACM_Header);
     
     if(wavc_or_acm)
     {

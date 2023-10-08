@@ -87,13 +87,13 @@ void CValueUnpacker::prepare_bits (int bits) {
         one_byte = 0;
       }
     }
-		next_bits |= ((unsigned long)one_byte << avail_bits);
+		next_bits |= ((uint32_t)one_byte << avail_bits);
 		avail_bits += 8;
 	}
 }
-long CValueUnpacker::get_bits (int bits) {
+int32_t CValueUnpacker::get_bits (int bits) {
 	prepare_bits (bits);
-	long res = next_bits;
+	int32_t res = next_bits;
 	avail_bits -= bits;
 	next_bits >>= bits;
 	return res;
@@ -104,13 +104,13 @@ int CValueUnpacker::init_unpacker() {
 	buff_middle = amp_buffer + 0x8000;
 	return 1;
 }
-int CValueUnpacker::get_one_block (long* block) {
+int CValueUnpacker::get_one_block (int32_t* block) {
 	block_ptr = block;
-	long pwr = get_bits (4) & 0xF,
+	int32_t pwr = get_bits (4) & 0xF,
 		val = get_bits (16) & 0xFFFF,
 		count = 1 << pwr,
 		v = 0;
-	long i;
+	int32_t i;
 	for (i=0; i<count; i++) {
 		buff_middle[i] = (short) v;
 		v += val;
@@ -140,7 +140,7 @@ int CValueUnpacker::return0 (int /*pass*/, int /*ind*/) {
 int CValueUnpacker::zero_fill (int pass, int /*ind*/) {
 //Eng: used when the whole column #pass is zero-filled
 //Rus: используется, когда весь столбец с номером pass заполнен нулями
-	long *sb_ptr = &block_ptr [pass],
+	int32_t *sb_ptr = &block_ptr [pass],
 		step = sb_size,
 		i = subblocks;
 	do {
@@ -150,7 +150,7 @@ int CValueUnpacker::zero_fill (int pass, int /*ind*/) {
 	return 1;
 }
 int CValueUnpacker::linear_fill (int pass, int ind) {
-	long mask = (1 << ind) - 1;
+	int32_t mask = (1 << ind) - 1;
 	short* lb_ptr = buff_middle + ( (-1l) << (ind-1) );
 
 	for (int i=0; i<subblocks; i++)

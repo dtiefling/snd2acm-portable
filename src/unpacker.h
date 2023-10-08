@@ -1,6 +1,8 @@
 #ifndef _ACM_LAB_VALUE_UNPACKER_H
 #define _ACM_LAB_VALUE_UNPACKER_H
 
+#include <cstdint>
+
 class CValueUnpacker {
 private:
 // Parameters of ACM stream
@@ -8,16 +10,16 @@ private:
 	FILE* file;
   int maxlen;
 // Bits
-	unsigned long next_bits; // new bits
+	uint32_t next_bits; // new bits
 	int avail_bits; // count of new bits
 
 	int sb_size, block_size;
 	short *amp_buffer, *buff_middle;
-	long* block_ptr;
+	int32_t* block_ptr;
 
 // Reading routines
 	void prepare_bits (int bits); // request bits
-	long get_bits (int bits); // request and return next bits
+	int32_t get_bits (int bits); // request and return next bits
 public:
 // These functions are used to fill the buffer with the amplitude values
 	int return0 (int pass, int ind);
@@ -51,7 +53,7 @@ public:
 	virtual ~CValueUnpacker() { if (amp_buffer) delete amp_buffer; };
 
 	int init_unpacker();
-	int get_one_block (long* block);
+	int get_one_block (int32_t* block);
 };
 
 typedef int (CValueUnpacker::* FillerProc) (int pass, int ind);

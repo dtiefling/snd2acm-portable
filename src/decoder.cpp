@@ -4,15 +4,15 @@
 int CSubbandDecoder::init_decoder() {
 	int memory_size = (levels == 0)? 0: (3*(block_size >> 1) - 2);
 	if (memory_size) {
-		memory_buffer = (long*)calloc (memory_size, sizeof(long));
+		memory_buffer = (int32_t*)calloc (memory_size, sizeof(int32_t));
 		if (!memory_buffer) return 0;
 	}
 	return 1;
 }
-void CSubbandDecoder::decode_data (long* buffer, int blocks) {
+void CSubbandDecoder::decode_data (int32_t* buffer, int blocks) {
 	if (!levels) return; // no levels - no work
 	
-	long *buff_ptr = buffer,
+	int32_t *buff_ptr = buffer,
 		*mem_ptr = memory_buffer;
 	int sb_size = block_size >> 1; // current subband size
 
@@ -33,8 +33,8 @@ void CSubbandDecoder::decode_data (long* buffer, int blocks) {
 		blocks <<= 1;
 	}
 }
-void CSubbandDecoder::sub_4d3fcc (short* memory, long* buffer, int sb_size, int blocks) {
-	long row_0, row_1, row_2, row_3, db_0, db_1;
+void CSubbandDecoder::sub_4d3fcc (short* memory, int32_t* buffer, int sb_size, int blocks) {
+	int32_t row_0, row_1, row_2, row_3, db_0, db_1;
 	int i;
 	int sb_size_2 = sb_size * 2,
 		sb_size_3 = sb_size * 3;
@@ -70,7 +70,7 @@ void CSubbandDecoder::sub_4d3fcc (short* memory, long* buffer, int sb_size, int 
 		}
 	} else {
 		for (i=0; i<sb_size; i++) {
-			long* buff_ptr = buffer;
+			int32_t* buff_ptr = buffer;
 			if (blocks &2) {
 				row_0 = buff_ptr[0];
 				row_1 = buff_ptr[sb_size];
@@ -102,8 +102,8 @@ void CSubbandDecoder::sub_4d3fcc (short* memory, long* buffer, int sb_size, int 
 		}
 	}
 }
-void CSubbandDecoder::sub_4d420c (long *memory, long *buffer, int sb_size, int blocks) {
-	long row_0, row_1, row_2, row_3, db_0, db_1;
+void CSubbandDecoder::sub_4d420c (int32_t *memory, int32_t *buffer, int sb_size, int blocks) {
+	int32_t row_0, row_1, row_2, row_3, db_0, db_1;
 	int i;
 	int sb_size_2 = sb_size * 2,
 		sb_size_3 = sb_size * 3;
@@ -127,7 +127,7 @@ void CSubbandDecoder::sub_4d420c (long *memory, long *buffer, int sb_size, int b
 		}
 	} else {
 		for (i=0; i<sb_size; i++) {
-			long* buff_ptr = buffer;
+			int32_t* buff_ptr = buffer;
 			db_0 = memory[0]; db_1 = memory[1];
 			for (int j=0; j<blocks >> 2; j++) {
 				row_0 = buff_ptr[0];  buff_ptr [0] =  db_0  + 2*db_1  + row_0;  buff_ptr += sb_size;

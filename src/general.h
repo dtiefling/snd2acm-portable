@@ -6,8 +6,8 @@
 
 #pragma pack (push, 1)
 struct ACM_Header {
-	long signature;
-	long samples;
+	int32_t signature;
+	int32_t samples;
 	unsigned short channels;
 	unsigned short rate;
 	unsigned short levels : 4;

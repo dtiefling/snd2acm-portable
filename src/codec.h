@@ -28,7 +28,7 @@ extern "C"
 typedef struct vorbis_info{
   int version;
   int channels;
-  long rate;
+  int32_t rate;
 
   /* The below bitrate declarations are *hints*.
      Combinations of the three values carry the following implications:
@@ -45,10 +45,10 @@ typedef struct vorbis_info{
        the coder does not care to speculate.
   */
 
-  long bitrate_upper;
-  long bitrate_nominal;
-  long bitrate_lower;
-  long bitrate_window;
+  int32_t bitrate_upper;
+  int32_t bitrate_nominal;
+  int32_t bitrate_lower;
+  int32_t bitrate_window;
 
   void *codec_setup;
 } vorbis_info;
@@ -69,10 +69,10 @@ typedef struct vorbis_dsp_state{
   int  preextrapolate;
   int  eofflag;
 
-  long lW;
-  long W;
-  long nW;
-  long centerW;
+  int32_t lW;
+  int32_t W;
+  int32_t nW;
+  int32_t centerW;
 
   ogg_int64_t granulepos;
   ogg_int64_t sequence;
@@ -90,9 +90,9 @@ typedef struct vorbis_block{
   float  **pcm;       /* this is a pointer into local storage */
   oggpack_buffer opb;
 
-  long  lW;
-  long  W;
-  long  nW;
+  int32_t  lW;
+  int32_t  W;
+  int32_t  nW;
   int   pcmend;
   int   mode;
 
@@ -104,16 +104,16 @@ typedef struct vorbis_block{
   /* local storage to avoid remallocing; it's up to the mapping to
      structure it */
   void               *localstore;
-  long                localtop;
-  long                localalloc;
-  long                totaluse;
+  int32_t                localtop;
+  int32_t                localalloc;
+  int32_t                totaluse;
   struct alloc_chain *reap;
 
   /* bitmetrics for the frame */
-  long glue_bits;
-  long time_bits;
-  long floor_bits;
-  long res_bits;
+  int32_t glue_bits;
+  int32_t time_bits;
+  int32_t floor_bits;
+  int32_t res_bits;
 
   void *internal;
 
@@ -121,7 +121,7 @@ typedef struct vorbis_block{
 
 /* vorbis_block is a single block of data to be processed as part of
 the analysis/synthesis stream; it belongs to a specific logical
-bitstream, but is independent from other vorbis_blocks belonging to
+bitstream, but is independent from other vorbis_blocks beint32_ting to
 that logical bitstream. *************************************************/
 
 struct alloc_chain{
@@ -212,7 +212,7 @@ extern int      vorbis_synthesis_blockin(vorbis_dsp_state *v,vorbis_block *vb);
 extern int      vorbis_synthesis_pcmout(vorbis_dsp_state *v,float ***pcm);
 extern int      vorbis_synthesis_lapout(vorbis_dsp_state *v,float ***pcm);
 extern int      vorbis_synthesis_read(vorbis_dsp_state *v,int samples);
-extern long     vorbis_packet_blocksize(vorbis_info *vi,ogg_packet *op);
+extern int32_t     vorbis_packet_blocksize(vorbis_info *vi,ogg_packet *op);
 
 extern int      vorbis_synthesis_halfrate(vorbis_info *v,int flag);
 extern int      vorbis_synthesis_halfrate_p(vorbis_info *v);

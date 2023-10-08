@@ -10,7 +10,7 @@ struct FilterQueue {
 	unsigned char* incomp; // pointer to incomplete values
 	unsigned char* cur; // pointer to top of a queue
 	int cur_no; // current top number
-	long input_count; // count of processed values
+	int32_t input_count; // count of processed values
 	int is_odd; // is input_count an odd number?
 };
 // One level
@@ -32,10 +32,10 @@ protected:
 	FilterLevel* levs; // the levels of the filter
 
 	// These need to be overwritten in the subclasses:
-	virtual long get_incomp_size() = 0; // returns the size of buffer's elements;
-		// long long (int64) or double can be used as elems.
+	virtual int32_t get_incomp_size() = 0; // returns the size of buffer's elements;
+		// int32_t int32_t (int64) or double can be used as elems.
 	virtual int allocate_coeffs() = 0; // allocates the coeffs of the high- and low-pass filters.
-	virtual long add_value (long val, FilterQueue* into) = 0; // adds a new value into a queue
+	virtual int32_t add_value (int32_t val, FilterQueue* into) = 0; // adds a new value into a queue
 public:
 	CSubbandCoder (int half, int lev_cnt) // size of a filter and count of levels
 		: incomp (NULL),
@@ -49,8 +49,8 @@ public:
 
 	int init_filter(); // initialize the structures of the filter
 	void clear_filter(); // clears all the data in the filter
-	long get_init_size(); // returns the size of initializing block
-	long filter_data (short* data, long count, long* res_data);
+	int32_t get_init_size(); // returns the size of initializing block
+	int32_t filter_data (short* data, int32_t count, int32_t* res_data);
 		// filters the data, returns the count of resulting items
 };
 
@@ -60,8 +60,8 @@ protected:
 	double *lp_filter, *hp_filter; // low- and high-pass coefficients
 	double divisor;
 	virtual int allocate_coeffs();
-	virtual long add_value (long val, FilterQueue* into);
-	virtual long get_incomp_size() { return sizeof(double); };
+	virtual int32_t add_value (int32_t val, FilterQueue* into);
+	virtual int32_t get_incomp_size() { return sizeof(double); };
 
 	void complete_filter(); // builds the lp and hp filters based on half of taps of lp filter
 public:

@@ -8,12 +8,12 @@ class CValuePacker {
 private:
 	FILE* file; // output file
 	CBitStream* bit_stream; // output bitstream
-	long subblocks, // count of sub-blocks in the PackedBlock
+	int32_t subblocks, // count of sub-blocks in the PackedBlock
 		sb_size, // size of one sub-block
 		pblock_size; // size of PackedBlock
 	short* pblock; // PackedBlock
 	short *max_abs, *max_plus; // max abs and max positive values in the columns
-	long max_bits_limit; // limit on the length of bits in a pblock
+	int32_t max_bits_limit; // limit on the length of bits in a pblock
 
 	void pack_column (int col); // chooses which packing method to use in a column and writes the bits into stream
 	void analyse (const short* block); // finds the quntizer cell width to fit the data into specified bit-limit
@@ -26,7 +26,7 @@ private:
 	void make_t37 (int col);
 	void make_linear (int bits, int col);
 public:
-	CValuePacker (FILE* out_file, long sbc, long sbs, long limit) // count of sub-blocks, their size
+	CValuePacker (FILE* out_file, int32_t sbc, int32_t sbs, int32_t limit) // count of sub-blocks, their size
 	// and the limit on the bits per packed block (-1 means no limit)
 		: file (out_file),
 		bit_stream (NULL),
@@ -44,7 +44,7 @@ public:
 
 	int init_packer();
 	void add_one_block (const short* block); // add one PackedBlock
-	long flush_bit_stream(); // return value is the count of written bytes
+	int32_t flush_bit_stream(); // return value is the count of written bytes
 };
 
 #endif

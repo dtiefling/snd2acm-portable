@@ -6,9 +6,9 @@
 class CSubbandDecoder {
 private:
 	int levels, block_size;
-	long* memory_buffer;
-	void sub_4d3fcc (short* memory, long* buffer, int sb_size, int blocks);
-	void sub_4d420c (long* memory, long* buffer, int sb_size, int blocks);
+	int32_t* memory_buffer;
+	void sub_4d3fcc (short* memory, int32_t* buffer, int sb_size, int blocks);
+	void sub_4d420c (int32_t* memory, int32_t* buffer, int sb_size, int blocks);
 public:
 	CSubbandDecoder (int lev_cnt)
 		: levels (lev_cnt),
@@ -17,7 +17,7 @@ public:
 	virtual ~CSubbandDecoder() { if (memory_buffer) free (memory_buffer); };
 
 	int init_decoder();
-	void decode_data (long* buffer, int blocks);
+	void decode_data (int32_t* buffer, int blocks);
 };
 
 #endif

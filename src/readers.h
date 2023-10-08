@@ -14,10 +14,10 @@
 // Abstract Sound Reader class
 class CSoundReader {
 protected:
-	long samples; // total count of sound samples
-  long channels;
-  long samplerate;
-	long samples_left; // count of unread samples
+	int32_t samples; // total count of sound samples
+  int32_t channels;
+  int32_t samplerate;
+	int32_t samples_left; // count of unread samples
 	int is16bit; // 1 - if 16 bit file, 0 - otherwise
 	FILE* file; // file handle
   int maxlen;
@@ -34,20 +34,20 @@ public:
 		if (file) fclose (file);
 	};
 
-  long get_channels()
+  int32_t get_channels()
   {
     return channels;
   }
-  long get_samplerate() { return samplerate; }
+  int32_t get_samplerate() { return samplerate; }
 	virtual int init_reader () = 0; // initializes the sound reader
 
-	long get_length() { return samples; }; // returns the total samples count
-	long get_samples_left() { return samples_left; };
+	int32_t get_length() { return samples; }; // returns the total samples count
+	int32_t get_samples_left() { return samples_left; };
 	int get_bits() { return (is16bit)?16:8; };
 
 	virtual const char* get_file_type() = 0;
 
-	virtual long read_samples (short* buffer, long count) = 0; // returns actual count of read samples
+	virtual int32_t read_samples (short* buffer, int32_t count) = 0; // returns actual count of read samples
 };
 
 // RAW file reader
@@ -60,14 +60,14 @@ public:
 		};
 
 	virtual int init_reader ();
-	virtual long read_samples (short* buffer, long count);
+	virtual int32_t read_samples (short* buffer, int32_t count);
 	virtual const char* get_file_type() { return (is16bit? "RAW16": "RAW8"); };
 };
 
 // WAV files
 class CWavPCMReader: public CRawPCMReader {
 public:
-	CWavPCMReader (int fhandle,long len)
+	CWavPCMReader (int fhandle,int32_t len)
 		: CRawPCMReader (fhandle, 16, len) {};
 	virtual int init_reader ();
 	virtual const char* get_file_type() { return "WAV"; };
@@ -78,8 +78,8 @@ class CACMReader: public CSoundReader {
 private:
 	int levels, subblocks;
 	int block_size;
-	long *block, *values;
-	long samples_ready;
+	int32_t *block, *values;
+	int32_t samples_ready;
 	CValueUnpacker* unpacker; // ACM-stream unpacker
 	CSubbandDecoder* decoder; // IP's subband decoder
 
@@ -99,7 +99,7 @@ public:
 
 	virtual int init_reader ();
 	virtual const char* get_file_type() { return "ACM"; };
-	virtual long read_samples (short* buffer, long count);
+	virtual int32_t read_samples (short* buffer, int32_t count);
 
 	int get_levels() { return levels; };
 	int get_subblocks() { return subblocks; }
@@ -111,8 +111,8 @@ typedef struct
 {
 	unsigned short wFormatTag;         /* format type */
 	unsigned short nChannels;          /* number of channels (i.e. mono, stereo...) */
-	unsigned long  nSamplesPerSec;     /* sample rate */
-	unsigned long  nAvgBytesPerSec;    /* for buffer estimation */
+	uint32_t  nSamplesPerSec;     /* sample rate */
+	uint32_t  nAvgBytesPerSec;    /* for buffer estimation */
 	unsigned short nBlockAlign;        /* block size of data */
 	unsigned short wBitsPerSample;     /* number of bits per sample of mono data */
 	unsigned short cbSize;             /* the count in bytes of the size of */
@@ -120,8 +120,8 @@ typedef struct
 } cWAVEFORMATEX;
 
 typedef struct {
-	unsigned long fourcc;
-	unsigned long length;
+	uint32_t fourcc;
+	uint32_t length;
 } RIFF_CHUNK;
 
 const unsigned char RIFF_4cc[] = { 'R', 'I', 'F', 'F' };
@@ -132,7 +132,7 @@ const unsigned char data_4cc[] = { 'd', 'a', 't', 'a' };
 
 
 // File open routine.
-CSoundReader* CreateSoundReader (int fhandle, int open_mode, long samples);
+CSoundReader* CreateSoundReader (int fhandle, int open_mode, int32_t samples);
 
 // Open modes:
 #define SND_READER_AUTO 0
@@ -143,8 +143,8 @@ CSoundReader* CreateSoundReader (int fhandle, int open_mode, long samples);
 
 typedef struct MyFile {
   int fhandle;
-  long base;
-  long end;
+  int32_t base;
+  int32_t end;
 } MyFile;
 
 #endif

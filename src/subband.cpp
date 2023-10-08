@@ -38,7 +38,7 @@ void CSubbandCoder::clear_filter() {
 	int i;
 	if (levels == 0) return; // if there are no levels, we do not need to initialize anything
 
-	long i_size = get_incomp_size(); // incomplete item size
+	int32_t i_size = get_incomp_size(); // incomplete item size
 	memset (incomp, 0, i_size * f_len * subbands);
 	memset (ques, 0, sizeof (FilterQueue) * subbands);
 	memset (levs, 0, sizeof (FilterLevel) * levels);
@@ -51,25 +51,25 @@ void CSubbandCoder::clear_filter() {
 		curr += ( levs[i]. count = 1 << i );
 	}
 }
-long CSubbandCoder::get_init_size() {
+int32_t CSubbandCoder::get_init_size() {
 	return f_half * subbands;
 }
-long CSubbandCoder::filter_data (short* data, long count, long* res_data) {
+int32_t CSubbandCoder::filter_data (short* data, int32_t count, int32_t* res_data) {
 	short* cur_inp = data;
-	long* cur_out = res_data;
+	int32_t* cur_out = res_data;
 	for (int i=0; i<count; i++, cur_inp++, cur_out++)
 		*cur_out = *cur_inp;// << levels;***
 	if (levels == 0) return count; // when there are no levels, there ain't no transformation
 
-	long i_size = get_incomp_size();
+	int32_t i_size = get_incomp_size();
 	FilterLevel* f_lev = levs;
 	for (int l=0; l<levels; l++) {
-		long res = 0;
-		long *input = res_data,
+		int32_t res = 0;
+		int32_t *input = res_data,
 			*output = res_data;
 		FilterQueue* f_que = f_lev->cur;
 		for (int i=0; i<count; i++) {
-			long next_val = add_value (*input, f_que);
+			int32_t next_val = add_value (*input, f_que);
 			// make an output, if available
 			if (f_que->input_count >= f_half) {
 				*output = next_val;
@@ -127,7 +127,7 @@ int C_DRZF_SubbandCoder::allocate_coeffs() {
 
 	return 1;
 }
-long C_DRZF_SubbandCoder::add_value (long val, FilterQueue* into) {
+int32_t C_DRZF_SubbandCoder::add_value (int32_t val, FilterQueue* into) {
 	if (val != 0 ) {
 		double* conv_ptr = (double*)into->cur;
 		int conv_no = into->cur_no;
@@ -141,8 +141,8 @@ long C_DRZF_SubbandCoder::add_value (long val, FilterQueue* into) {
 			}
 		}
 	}
-//	return ( (long)floor (0.5 + *(double*)into->cur) );
-	return ( (long)(*(double*)into->cur) );
+//	return ( (int32_t)floor (0.5 + *(double*)into->cur) );
+	return ( (int32_t)(*(double*)into->cur) );
 }
 void C_DRZF_SubbandCoder::complete_filter() {
 	int i;

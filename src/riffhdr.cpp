@@ -14,7 +14,7 @@ RIFF_HEADER riff = {
 	{'d', 'a', 't', 'a'}
 };
 
-void write_riff_header (void *memory, long samples, int channels, int samplerate) {
+void write_riff_header (void *memory, int32_t samples, int channels, int samplerate) {
 	riff.raw_data_len = samples * sizeof(short);
 	riff.total_len_m8 = riff.raw_data_len + sizeof(RIFF_HEADER) - 8;
   riff.nChannels=(unsigned short) channels;  
@@ -30,7 +30,7 @@ WAVC_HEADER wavc={
   2,16,22050,0x9ffdu
 };
 
-void write_wavc_header (FILE *fpoi, long samples, int channels, int compressed, int samplerate) {
+void write_wavc_header (FILE *fpoi, int32_t samples, int channels, int compressed, int samplerate) {
   wavc.uncompressed=samples*sizeof(short);
   wavc.compressed=compressed;
 	wavc.channels=(short) channels;

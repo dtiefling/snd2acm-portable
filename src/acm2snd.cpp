@@ -11,14 +11,14 @@
 
 static size_t myread(void *memory, size_t size, size_t count, void *src)
 {
-  long cur = tell( ( (MyFile *) src)->fhandle);
+  int32_t cur = tell( ( (MyFile *) src)->fhandle);
   if (cur>(( MyFile *) src)->end)
   {
     errno=EINVAL;
     return 0;
   }
 
-  long tmp = size*count;
+  int32_t tmp = size*count;
   if (tmp+cur<= ( ((MyFile *) src)->end) )
   {
     return read(((MyFile *) src)->fhandle, memory, tmp);
@@ -31,11 +31,11 @@ static int myseek(void *src, ogg_int64_t offset, int whence)
   switch(whence)
   {
   case SEEK_SET:
-    return lseek(((MyFile *) src)->fhandle, (long) offset + ((MyFile *) src)->base, whence)-((MyFile *) src)->base;
+    return lseek(((MyFile *) src)->fhandle, (int32_t) offset + ((MyFile *) src)->base, whence)-((MyFile *) src)->base;
   case SEEK_CUR:
-    return lseek(((MyFile *) src)->fhandle, (long) offset, whence)-((MyFile *) src)->base;
+    return lseek(((MyFile *) src)->fhandle, (int32_t) offset, whence)-((MyFile *) src)->base;
   case SEEK_END:
-    return lseek(((MyFile *) src)->fhandle,  ((MyFile *) src)->end-(long) offset, SEEK_SET)-((MyFile *) src)->base;
+    return lseek(((MyFile *) src)->fhandle,  ((MyFile *) src)->end-(int32_t) offset, SEEK_SET)-((MyFile *) src)->base;
   }
   return -1;
 }
@@ -47,7 +47,7 @@ static int myclose(void *src)
 }
 */
 
-static long mytell(void *src)
+static int32_t mytell(void *src)
 {
   return tell( ( (MyFile *) src)->fhandle) - ((MyFile *) src)->base;
 }
@@ -56,10 +56,10 @@ static ov_callbacks OV_CALLBACKS_DLTCEP = {
   (size_t (*)(void *, size_t, size_t, void *))  myread,
   (int (*)(void *, ogg_int64_t, int))           myseek,
   (int (*)(void *))                             NULL,
-  (long (*)(void *))                            mytell
+  (int32_t (*)(void *))                            mytell
 };
 
-int ogg_decode(int fhandle, long maxlen, unsigned char *&memory, long &samples_written)
+int ogg_decode(int fhandle, int32_t maxlen, unsigned char *&memory, int32_t &samples_written)
 {
   unsigned char *pcmout;
   unsigned char *pcmend;
@@ -84,7 +84,7 @@ int ogg_decode(int fhandle, long maxlen, unsigned char *&memory, long &samples_w
       fprintf(stderr,"%s\n",*ptr);
       ++ptr;
     }
-    long cnt = (long) ov_pcm_total(&vf,-1);
+    int32_t cnt = (int32_t) ov_pcm_total(&vf,-1);
     samples_written = cnt*vi->channels*sizeof(short);
     //memory = (unsigned char *) new char[samples_written];
     memory=new unsigned char[samples_written+sizeof(RIFF_HEADER)];
@@ -95,12 +95,12 @@ int ogg_decode(int fhandle, long maxlen, unsigned char *&memory, long &samples_w
     
     //fprintf(stderr,"\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);
     //fprintf(stderr,"\nDecoded length: %ld samples\n",
-    //        (long)ov_pcm_total(&vf,-1));
+    //        (int32_t)ov_pcm_total(&vf,-1));
     //fprintf(stderr,"Encoded by: %s\n\n",ov_comment(&vf,-1)->vendor);
   }
   
   while(!eof){
-    long ret=ov_read(&vf,(char *) pcmout,4096,0,2,1,&current_section);
+    int32_t ret=ov_read(&vf,(char *) pcmout,4096,0,2,1,&current_section);
     if (ret == 0) {
       /* EOF */
       if (pcmout!=pcmend) {
@@ -122,7 +122,7 @@ int ogg_decode(int fhandle, long maxlen, unsigned char *&memory, long &samples_w
 }
 
 #if 0
-int ogg_decode(int fhandle, long maxlen, unsigned char *&memory, long &samples_written)
+int ogg_decode(int fhandle, int32_t maxlen, unsigned char *&memory, int32_t &samples_written)
 {
   ogg_page og;
   ogg_packet op;
@@ -264,11 +264,11 @@ void finalize() {
   acm=NULL;
 }
 
-int ConvertAcmWav(int fhandle, long maxlen, unsigned char *&memory, long &samples_written, int forcestereo)
+int ConvertAcmWav(int fhandle, int32_t maxlen, unsigned char *&memory, int32_t &samples_written, int forcestereo)
 {
   int riff_chans;
-  long rawsize=0;
-  long cnt, cnt1;
+  int32_t rawsize=0;
+  int32_t cnt, cnt1;
   RIFF_HEADER riff;
   
   memory=0;
@@ -288,7 +288,7 @@ int ConvertAcmWav(int fhandle, long maxlen, unsigned char *&memory, long &sample
       if(read(fhandle,&riff.total_len_m8, sizeof(RIFF_HEADER)-4 )==sizeof(RIFF_HEADER)-4 )
       {
         // data_sig-wformattag=16
-        if(riff.formatex_len!=(unsigned long) ((BYTE *) riff.data_sig-(BYTE *) &riff.wFormatTag))
+        if(riff.formatex_len!=(uint32_t) ((BYTE *) riff.data_sig-(BYTE *) &riff.wFormatTag))
         {
           cnt=riff.formatex_len-24;
           lseek(fhandle,cnt,SEEK_CUR);
@@ -313,14 +313,14 @@ int ConvertAcmWav(int fhandle, long maxlen, unsigned char *&memory, long &sample
           return 3;
         }
         maxlen-=sizeof(RIFF_HEADER);
-        if(riff.raw_data_len>(unsigned long) maxlen)
+        if(riff.raw_data_len>(uint32_t) maxlen)
         {
           riff.total_len_m8=maxlen+sizeof(RIFF_HEADER);
           riff.raw_data_len=maxlen;
         }
         memcpy(memory,&riff,sizeof(RIFF_HEADER) );
         samples_written = riff.raw_data_len+sizeof(RIFF_HEADER);
-        if(read(fhandle,(unsigned char *) memory+sizeof(RIFF_HEADER),riff.raw_data_len)!=(long) riff.raw_data_len)
+        if(read(fhandle,(unsigned char *) memory+sizeof(RIFF_HEADER),riff.raw_data_len)!=(int32_t) riff.raw_data_len)
         {
           finalize();
           return 3;
