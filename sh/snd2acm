@@ -2,6 +2,11 @@
 
 SCRIPT_NAME="${BASH_SOURCE[0]}"
 
+if [ -z "$(which "ffmpeg")" ]; then
+    echo "Error: ffmpeg command not found."
+    exit 1
+fi
+
 if [ "${#}" != "2" ]; then
     echo "Usage: ${SCRIPT_NAME} infile outfile."
     exit 1
