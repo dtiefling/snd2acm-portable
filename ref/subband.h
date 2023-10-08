@@ -50,7 +50,7 @@ public:
 	int init_filter(); // initialize the structures of the filter
 	void clear_filter(); // clears all the data in the filter
 	int32_t get_init_size(); // returns the size of initializing block
-	int32_t filter_data (int16_t* data, int32_t count, int32_t* res_data);
+	int32_t filter_data (short* data, int32_t count, int32_t* res_data);
 		// filters the data, returns the count of resulting items
 };
 

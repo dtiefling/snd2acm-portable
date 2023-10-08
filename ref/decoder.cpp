@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <stdlib.h>
 #include "decoder.h"
 
@@ -17,7 +19,7 @@ void CSubbandDecoder::decode_data (int32_t* buffer, int blocks) {
 	int sb_size = block_size >> 1; // current subband size
 
 	blocks <<= 1;
-	sub_4d3fcc ((int16_t*)mem_ptr, buff_ptr, sb_size, blocks);
+	sub_4d3fcc ((short*)mem_ptr, buff_ptr, sb_size, blocks);
 	mem_ptr += sb_size;
 
 	for (int i=0; i<blocks; i++)
@@ -33,7 +35,7 @@ void CSubbandDecoder::decode_data (int32_t* buffer, int blocks) {
 		blocks <<= 1;
 	}
 }
-void CSubbandDecoder::sub_4d3fcc (int16_t* memory, int32_t* buffer, int sb_size, int blocks) {
+void CSubbandDecoder::sub_4d3fcc (short* memory, int32_t* buffer, int sb_size, int blocks) {
 	int32_t row_0, row_1, row_2, row_3, db_0, db_1;
 	int i;
 	int sb_size_2 = sb_size * 2,
@@ -44,8 +46,8 @@ void CSubbandDecoder::sub_4d3fcc (int16_t* memory, int32_t* buffer, int sb_size,
 			row_1 = buffer[sb_size];
 			buffer [0] = buffer[0] + memory[0] + 2*memory[1];
 			buffer [sb_size] = 2*row_0 - memory[1] - buffer[sb_size];
-			memory [0] = (int16_t) row_0;
-			memory [1] = (int16_t) row_1;
+			memory [0] = (short) row_0;
+			memory [1] = (short) row_1;
 
 			memory += 2;
 			buffer++;
@@ -62,8 +64,8 @@ void CSubbandDecoder::sub_4d3fcc (int16_t* memory, int32_t* buffer, int sb_size,
 			buffer [sb_size_2] =  row_0     + 2*row_1     + row_2;
 			buffer [sb_size_3] = -row_1     + 2*row_2     - row_3;
 
-			memory [0] = (int16_t) row_2;
-			memory [1] = (int16_t) row_3;
+			memory [0] = (short) row_2;
+			memory [1] = (short) row_3;
 
 			memory += 2;
 			buffer++;
@@ -95,8 +97,8 @@ void CSubbandDecoder::sub_4d3fcc (int16_t* memory, int32_t* buffer, int sb_size,
 				db_0 = row_2;
 				db_1 = row_3;
 			}
-			memory [0] = (int16_t) row_2;
-			memory [1] = (int16_t) row_3;
+			memory [0] = (short) row_2;
+			memory [1] = (short) row_3;
 			memory += 2;
 			buffer++;
 		}

@@ -1,7 +1,7 @@
 #ifndef _ACM_LAB_VALUE_UNPACKER_H
 #define _ACM_LAB_VALUE_UNPACKER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 class CValueUnpacker {
 private:
@@ -14,7 +14,7 @@ private:
 	int avail_bits; // count of new bits
 
 	int sb_size, block_size;
-	int16_t *amp_buffer, *buff_middle;
+	short *amp_buffer, *buff_middle;
 	int32_t* block_ptr;
 
 // Reading routines

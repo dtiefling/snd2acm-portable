@@ -1,3 +1,4 @@
+#include "stdafx.h"
 // CValuePacker packs the values into an ACM-stream.
 
 // IP's packing algorithm is not optimal. For full compatibility uncomment the next line
@@ -29,25 +30,25 @@ double approx_len (int max, int plus_max) {
 	}
 }
 
-void CValuePacker::analyse (const int16_t* block) {
+void CValuePacker::analyse (const short* block) {
 	int32_t i, sub_number;
-	const int16_t *block_ptr = block;
-	int16_t *pblock_ptr = pblock;
+	const short *block_ptr = block;
+	short *pblock_ptr = pblock;
 
-	memset (max_abs, 0, sizeof(int16_t)*sb_size);
-	memset (max_plus, 0, sizeof(int16_t)*sb_size);
+	memset (max_abs, 0, sizeof(short)*sb_size);
+	memset (max_plus, 0, sizeof(short)*sb_size);
 
 	// 1. transfer the values into internal buffer and locating
 	//    max. absolute and max. positive values in the columns
 	for (i=0, sub_number=0; i<pblock_size; i++, block_ptr++, pblock_ptr++) {
 		int abs_val = *block_ptr;
-		*pblock_ptr = (int16_t) abs_val;
+		*pblock_ptr = (short) abs_val;
 		if (abs_val > 0) {
-			if (max_plus[sub_number] < abs_val) max_plus[sub_number] = (int16_t) abs_val;
+			if (max_plus[sub_number] < abs_val) max_plus[sub_number] = (short) abs_val;
 		} else {
 			abs_val = -abs_val;
 		}
-		if (max_abs[sub_number] < abs_val) max_abs[sub_number] = (int16_t) abs_val;
+		if (max_abs[sub_number] < abs_val) max_abs[sub_number] = (short) abs_val;
 		sub_number++;
 		if (sub_number == sb_size) sub_number = 0;
 	}
@@ -102,7 +103,7 @@ void CValuePacker::granulate (int val) {
 	int max = 0; // the maximum amplitude
 	for (int i=0; i<pblock_size; i++) {
 		int n = ROUND (pblock[i] / val); // "degranulate"
-		pblock[i] = (int16_t) n;
+		pblock[i] = (short) n;
 		n = (n<0)? -n: n+1;
 		if (n > max) max = n;
 	}
@@ -125,7 +126,7 @@ void CValuePacker::pack_column (int col) {
 	int max_plus_amp = 0;
 	int p00_x3, pall0_x3; // triple p00 and p_all_0 (user very frequently)
 	int i;
-	int16_t* current = pblock + col;
+	short* current = pblock + col;
 
 	// 1. collecting statistics
 	for (i=0; i<subblocks; i++, current += sb_size) {
@@ -191,19 +192,19 @@ void CValuePacker::pack_column (int col) {
 	}
 }
 
-void CValuePacker::add_one_block (const int16_t* block) {
+void CValuePacker::add_one_block (const short* block) {
 	analyse (block);
 	for (int i=0; i<sb_size; i++)
 		pack_column (i);
 }
 
 int CValuePacker::init_packer() {
-	pblock = new int16_t [pblock_size + 2*sb_size]; // two more lines (are always zero)
+	pblock = new short [pblock_size + 2*sb_size]; // two more lines (are always zero)
 	if (!pblock) return 0;
 	bit_stream = new CBitStream (file); if ( !bit_stream || !bit_stream->init_bit_stream() ) return 0;
 	for (int i=0; i<2*sb_size; i++) pblock[pblock_size + i] = 0;
-	max_abs = new int16_t [sb_size]; if (!max_abs) return 0;
-	max_plus = new int16_t [sb_size]; if (!max_plus) return 0;
+	max_abs = new short [sb_size]; if (!max_abs) return 0;
+	max_plus = new short [sb_size]; if (!max_plus) return 0;
 	return 1;
 }
 
@@ -239,7 +240,7 @@ void CValuePacker::make_k (int ind, int col) {
 	int double_zero = k_desc[ind].double_zero;
 	char base = k_desc[ind].base;
 	one_val* data = k_desc[ind].data;
-	int16_t* curr = pblock + col;
+	short* curr = pblock + col;
 
 	bit_stream->write_bits (k_desc[ind].number, 5);
 	for (int i=0; i<subblocks; i++, curr += sb_size) {
@@ -254,8 +255,8 @@ void CValuePacker::make_k (int ind, int col) {
 }
 
 void CValuePacker::make_linear (int bits, int col) {
-	int16_t base = (int16_t) (1 << (bits-1));
-	int16_t* curr = pblock + col;
+	short base = (short) (1 << (bits-1));
+	short* curr = pblock + col;
 
 	bit_stream->write_bits (bits, 5);
 	for (int i=0; i<subblocks; i++, curr += sb_size) {
@@ -264,7 +265,7 @@ void CValuePacker::make_linear (int bits, int col) {
 }
 
 void CValuePacker::make_t15 (int col) {
-	int16_t *curr = pblock + col;
+	short *curr = pblock + col;
 	int step = sb_size*3;
 
 	bit_stream->write_bits (19, 5);
@@ -275,7 +276,7 @@ void CValuePacker::make_t15 (int col) {
 }
 
 void CValuePacker::make_t27 (int col) {
-	int16_t *curr = pblock + col;
+	short *curr = pblock + col;
 	int step = sb_size*3;
 
 	bit_stream->write_bits (22, 5);
@@ -286,7 +287,7 @@ void CValuePacker::make_t27 (int col) {
 }
 
 void CValuePacker::make_t37 (int col) {
-	int16_t *curr = pblock + col;
+	short *curr = pblock + col;
 	bit_stream->write_bits (29, 5);
 	for (int i=0; i<subblocks; i+=2, curr+=2*sb_size) {
 		int val = (5 + *curr) + (5 + curr[sb_size])*11;

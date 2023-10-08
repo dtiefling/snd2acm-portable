@@ -1,3 +1,4 @@
+#include "stdafx.h"
 // Classes for sound files.
 // Supported formats: PCM-RAW, PCM-WAV (both 8 and 16 bits),
 //   and Interplay's ACM.
@@ -52,14 +53,14 @@ int CACMReader::make_new_samples() {
   samples_left -= samples_ready;
   return 1;
 }
-int32_t CACMReader::read_samples (int16_t* buffer, int32_t count) {
+int32_t CACMReader::read_samples (short* buffer, int32_t count) {
   int32_t res = 0;
   while (res < count) {
     if (samples_ready == 0) {
       if (samples_left == 0) break;
       if (!make_new_samples()) break;
     }
-    *buffer = (int16_t) ((*values) >> levels);
+    *buffer = (short) ((*values) >> levels);
     values++;
     buffer++;
     res += 1;
@@ -103,7 +104,7 @@ int CRawPCMReader::init_reader () {
   return 1;
 }
 
-int32_t CRawPCMReader::read_samples (int16_t* buffer, int32_t count) {
+int32_t CRawPCMReader::read_samples (short* buffer, int32_t count) {
   if (count > samples_left) count = samples_left;
   int32_t res = 0, i;
   if (count)

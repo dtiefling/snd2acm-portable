@@ -3,6 +3,6 @@
 
 #include <cstdint>
 
-int ConvertWavAcm(int fh, int32_t maxlen, FILE *foutp, bool wavc_or_acm);
+int ConvertWavAcm(int fh, int maxlen, FILE *foutp, bool wavc_or_acm);
 
 #endif

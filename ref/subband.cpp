@@ -1,3 +1,4 @@
+#include "stdafx.h"
 // Pyramidal Subband Coding Scheme.
 
 // Based on:
@@ -54,8 +55,8 @@ void CSubbandCoder::clear_filter() {
 int32_t CSubbandCoder::get_init_size() {
 	return f_half * subbands;
 }
-int32_t CSubbandCoder::filter_data (int16_t* data, int32_t count, int32_t* res_data) {
-	int16_t* cur_inp = data;
+int32_t CSubbandCoder::filter_data (short* data, int32_t count, int32_t* res_data) {
+	short* cur_inp = data;
 	int32_t* cur_out = res_data;
 	for (int i=0; i<count; i++, cur_inp++, cur_out++)
 		*cur_out = *cur_inp;// << levels;***

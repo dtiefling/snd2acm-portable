@@ -1,3 +1,4 @@
+#include "stdafx.h"
 // Writes the RIFF header into a stream
 
 #include <stdio.h>
@@ -15,11 +16,11 @@ RIFF_HEADER riff = {
 };
 
 void write_riff_header (void *memory, int32_t samples, int channels, int samplerate) {
-	riff.raw_data_len = samples * sizeof(int16_t);
+	riff.raw_data_len = samples * sizeof(short);
 	riff.total_len_m8 = riff.raw_data_len + sizeof(RIFF_HEADER) - 8;
-  riff.nChannels=(uint16_t) channels;  
+  riff.nChannels=(unsigned short) channels;  
   riff.nSamplesPerSec=samplerate;
-  riff.nAvgBytesPerSec=channels*sizeof(int16_t)*samplerate;
+  riff.nAvgBytesPerSec=channels*sizeof(short)*samplerate;
 	memcpy(memory, &riff, sizeof(RIFF_HEADER) );
 }
 
@@ -31,10 +32,10 @@ WAVC_HEADER wavc={
 };
 
 void write_wavc_header (FILE *fpoi, int32_t samples, int channels, int compressed, int samplerate) {
-  wavc.uncompressed=samples*sizeof(int16_t);
+  wavc.uncompressed=samples*sizeof(short);
   wavc.compressed=compressed;
-	wavc.channels=(int16_t) channels;
-  wavc.samplespersec=(int16_t) samplerate;
+	wavc.channels=(short) channels;
+  wavc.samplespersec=(short) samplerate;
   rewind(fpoi);
 	fwrite(&wavc, 1, sizeof(WAVC_HEADER) ,fpoi );
 }

@@ -1,15 +1,35 @@
+#include "stdafx.h"
 //acm2snd.cpp
 // Acm to Wav conversion
+#if _MSC_VER
+#include <io.h>
+#endif
 #include <errno.h>
-#include <unistd.h>
-#include "acm2snd.h"
 #include "readers.h"
 #include "general.h"
 #include "riffhdr.h"
-#include "portable-utils.h"
 
 #define OV_EXCLUDE_STATIC_CALLBACKS //who needs that
 #include <vorbis/vorbisfile.h>
+
+#if !_MSC_VER
+#include <unistd.h>
+
+typedef unsigned char BYTE;
+
+static int tell(int fd)
+{
+  return lseek(fd, 0, SEEK_CUR);
+}
+
+static int filelength(int fd)
+{
+  off_t pos = lseek(fd, 0, SEEK_CUR);
+  off_t length = lseek(fd, 0, SEEK_END);
+  lseek(fd, pos, SEEK_SET);
+  return length;
+}
+#endif
 
 static size_t myread(void *memory, size_t size, size_t count, void *src)
 {
@@ -87,7 +107,7 @@ int ogg_decode(int fhandle, int32_t maxlen, unsigned char *&memory, int32_t &sam
       ++ptr;
     }
     int32_t cnt = (int32_t) ov_pcm_total(&vf,-1);
-    samples_written = cnt*vi->channels*sizeof(int16_t);
+    samples_written = cnt*vi->channels*sizeof(short);
     //memory = (unsigned char *) new char[samples_written];
     memory=new unsigned char[samples_written+sizeof(RIFF_HEADER)];
     memset(memory,0,sizeof(memory));
@@ -266,7 +286,7 @@ void finalize() {
   acm=NULL;
 }
 
-int ConvertAcmWav(int fhandle, int maxlen, unsigned char *&memory, int32_t &samples_written, int forcestereo)
+int ConvertAcmWav(int fhandle, int32_t maxlen, unsigned char *&memory, int32_t &samples_written, int forcestereo)
 {
   int riff_chans;
   int32_t rawsize=0;
@@ -359,8 +379,8 @@ int ConvertAcmWav(int fhandle, int maxlen, unsigned char *&memory, int32_t &samp
     memset(memory,0,sizeof(memory));
     write_riff_header (memory, cnt, riff_chans, acm->get_samplerate());
     
-    cnt1 = acm->read_samples ((int16_t*)(memory+samples_written), cnt);
-    rawsize=cnt1*sizeof(int16_t);
+    cnt1 = acm->read_samples ((short*)(memory+samples_written), cnt);
+    rawsize=cnt1*sizeof(short);
     samples_written+=rawsize;
     cnt -= cnt1;
     
@@ -373,4 +393,32 @@ int ConvertAcmWav(int fhandle, int maxlen, unsigned char *&memory, int32_t &samp
     finalize();
 		return 4;
   }
+}
+
+int main(int argc, char **argv)
+{
+    if(argc < 3) {
+        printf("Minimal usage: binary infile outfile.\n");
+        return 1;
+    }
+
+    FILE *finp = fopen(argv[argc - 2], "rb");
+    FILE *foutp = fopen(argv[argc - 1], "wb");
+    unsigned char *memory;
+    int samples_written;
+
+    ConvertAcmWav(fileno(finp), -1, memory, samples_written, 0);
+
+    fclose(finp);
+
+    fwrite(memory, 1, samples_written + sizeof(RIFF_HEADER), foutp);
+
+    if(memory) {
+        delete[] memory;
+        memory = NULL;
+    }
+
+    fclose(foutp);
+
+    return 0;
 }

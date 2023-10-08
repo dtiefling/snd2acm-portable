@@ -2,7 +2,7 @@
 #define _ACM_LAB_BIT_STREAM_H
 
 #include <stdio.h>
-#include <cstdint>
+#include <stdint.h>
 
 class CBitStream {
 private:

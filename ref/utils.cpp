@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "utils.h"
 
 // Greatest Common Divisor functions
@@ -15,8 +16,8 @@ int GCD (int q, int r) {
 	return q;
 }
 
-// GCD of int16_ts in an array
-int GCD (const int16_t* values, int count) {
+// GCD of shorts in an array
+int GCD (const short* values, int count) {
 	if (!count) return 0;
 
 	int pos = 1,

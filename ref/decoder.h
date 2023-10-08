@@ -7,7 +7,7 @@ class CSubbandDecoder {
 private:
 	int levels, block_size;
 	int32_t* memory_buffer;
-	void sub_4d3fcc (int16_t* memory, int32_t* buffer, int sb_size, int blocks);
+	void sub_4d3fcc (short* memory, int32_t* buffer, int sb_size, int blocks);
 	void sub_4d420c (int32_t* memory, int32_t* buffer, int sb_size, int blocks);
 public:
 	CSubbandDecoder (int lev_cnt)

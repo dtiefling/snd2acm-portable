@@ -1,3 +1,4 @@
+#include "stdafx.h"
 // IP's ACM-stream unpacker.
 
 #include <stdio.h>
@@ -12,7 +13,7 @@ char Table1 [27] =
 //		000 001 002  010 011 012  020 021 022
 //		100 101 102  110 111 112  120 121 122
 //		200 201 202  210 211 212  220 221 222
-int16_t Table2 [125] =
+short Table2 [125] =
 		{ 0,  1,  2,  3,  4,   8,  9, 10, 11, 12,  16, 17, 18, 19, 20,  24, 25, 26, 27, 28,  32, 33, 34, 35, 36,
 		 64, 65, 66, 67, 68,  72, 73, 74, 75, 76,  80, 81, 82, 83, 84,  88, 89, 90, 91, 92,  96, 97, 98, 99,100,
 		128,129,130,131,132, 136,137,138,139,140, 144,145,146,147,148, 152,153,154,155,156, 160,161,162,163,164,
@@ -99,7 +100,7 @@ int32_t CValueUnpacker::get_bits (int bits) {
 	return res;
 }
 int CValueUnpacker::init_unpacker() {
-	amp_buffer = new int16_t [0x10000];
+	amp_buffer = new short [0x10000];
 	if (!amp_buffer) return 0;
 	buff_middle = amp_buffer + 0x8000;
 	return 1;
@@ -112,12 +113,12 @@ int CValueUnpacker::get_one_block (int32_t* block) {
 		v = 0;
 	int32_t i;
 	for (i=0; i<count; i++) {
-		buff_middle[i] = (int16_t) v;
+		buff_middle[i] = (short) v;
 		v += val;
 	}
 	v = -val;
 	for (i=0; i<count; i++) {
-		buff_middle[-i-1] = (int16_t) v;
+		buff_middle[-i-1] = (short) v;
 		v -= val; 
 	}
 
@@ -151,7 +152,7 @@ int CValueUnpacker::zero_fill (int pass, int /*ind*/) {
 }
 int CValueUnpacker::linear_fill (int pass, int ind) {
 	int32_t mask = (1 << ind) - 1;
-	int16_t* lb_ptr = buff_middle + ( (-1l) << (ind-1) );
+	short* lb_ptr = buff_middle + ( (-1l) << (ind-1) );
 
 	for (int i=0; i<subblocks; i++)
 		block_ptr [i*sb_size + pass] = lb_ptr [get_bits (ind) & mask];
@@ -278,7 +279,7 @@ int CValueUnpacker::t2_7bits (int pass, int /*ind*/) {
 // use it when p0 <= 1/3
 	for (int i=0; i<subblocks; i++) {
 		char bits = (char) (get_bits (7) & 0x7f);
-		int16_t val = Table2 [bits];
+		short val = Table2 [bits];
 
 		block_ptr [i*sb_size + pass] = buff_middle[-2 + (val & 7)];
 			if ((++i) == subblocks) break;

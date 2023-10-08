@@ -47,7 +47,7 @@ public:
 
 	virtual const char* get_file_type() = 0;
 
-	virtual int32_t read_samples (int16_t* buffer, int32_t count) = 0; // returns actual count of read samples
+	virtual int32_t read_samples (short* buffer, int32_t count) = 0; // returns actual count of read samples
 };
 
 // RAW file reader
@@ -60,7 +60,7 @@ public:
 		};
 
 	virtual int init_reader ();
-	virtual int32_t read_samples (int16_t* buffer, int32_t count);
+	virtual int32_t read_samples (short* buffer, int32_t count);
 	virtual const char* get_file_type() { return (is16bit? "RAW16": "RAW8"); };
 };
 
@@ -99,7 +99,7 @@ public:
 
 	virtual int init_reader ();
 	virtual const char* get_file_type() { return "ACM"; };
-	virtual int32_t read_samples (int16_t* buffer, int32_t count);
+	virtual int32_t read_samples (short* buffer, int32_t count);
 
 	int get_levels() { return levels; };
 	int get_subblocks() { return subblocks; }
@@ -109,13 +109,13 @@ public:
 // WAVEFORMATEX structure (from MS SDK)
 typedef struct
 {
-	uint16_t wFormatTag;         /* format type */
-	uint16_t nChannels;          /* number of channels (i.e. mono, stereo...) */
+	unsigned short wFormatTag;         /* format type */
+	unsigned short nChannels;          /* number of channels (i.e. mono, stereo...) */
 	uint32_t  nSamplesPerSec;     /* sample rate */
 	uint32_t  nAvgBytesPerSec;    /* for buffer estimation */
-	uint16_t nBlockAlign;        /* block size of data */
-	uint16_t wBitsPerSample;     /* number of bits per sample of mono data */
-	uint16_t cbSize;             /* the count in bytes of the size of */
+	unsigned short nBlockAlign;        /* block size of data */
+	unsigned short wBitsPerSample;     /* number of bits per sample of mono data */
+	unsigned short cbSize;             /* the count in bytes of the size of */
 					   /* extra information (after cbSize) */
 } cWAVEFORMATEX;
 

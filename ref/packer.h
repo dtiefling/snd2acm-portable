@@ -11,12 +11,12 @@ private:
 	int32_t subblocks, // count of sub-blocks in the PackedBlock
 		sb_size, // size of one sub-block
 		pblock_size; // size of PackedBlock
-	int16_t* pblock; // PackedBlock
-	int16_t *max_abs, *max_plus; // max abs and max positive values in the columns
+	short* pblock; // PackedBlock
+	short *max_abs, *max_plus; // max abs and max positive values in the columns
 	int32_t max_bits_limit; // limit on the length of bits in a pblock
 
 	void pack_column (int col); // chooses which packing method to use in a column and writes the bits into stream
-	void analyse (const int16_t* block); // finds the quntizer cell width to fit the data into specified bit-limit
+	void analyse (const short* block); // finds the quntizer cell width to fit the data into specified bit-limit
 	void granulate (int val); // granulates the block
 	double estimate (int val); // roughly estimates the length of packed block
 
@@ -43,7 +43,7 @@ public:
 	};
 
 	int init_packer();
-	void add_one_block (const int16_t* block); // add one PackedBlock
+	void add_one_block (const short* block); // add one PackedBlock
 	int32_t flush_bit_stream(); // return value is the count of written bytes
 };
 

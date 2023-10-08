@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+SCRIPT_NAME="${BASH_SOURCE[0]}"
+
+if [ "${#}" != "2" ]; then
+    echo "Usage: ${SCRIPT_NAME} infile outfile."
+    exit 1
+fi
+
+INFILE="${*: -2:1}"
+OUTFILE="${*: -1:1}"
+
+CLEANWAV="$(mktemp --suffix=".wav")"
+
+ffmpeg -loglevel "error" -y -i "${INFILE}" -f "wav" -map_metadata "-1" -bitexact "${CLEANWAV}"
+
+"${SCRIPT_NAME}.bin" "${@:1:${#}-2}" "${CLEANWAV}" "${OUTFILE}"
+CODE="${?}"
+
+rm -f "${CLEANWAV}"
+
+exit "${CODE}"

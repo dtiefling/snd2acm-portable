@@ -1,3 +1,4 @@
+#include "stdafx.h"
 // snd2acm converter.
 
 #include <stdio.h>
@@ -5,16 +6,30 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "snd2acm.h"
+#if _MSC_VER
+#include <windows.h>
+#include <io.h>
+#endif
 #include "subband.h"
 #include "readers.h"
 #include "packer.h"
 #include "general.h"
 #include "riffhdr.h"
-#include "portable-utils.h"
 
 #define HATCH_SIZE 655360
 #define COMPRESSION_RATE 100.0
+
+#if !_MSC_VER
+#include <unistd.h>
+
+static int filelength(int fd)
+{
+  off_t pos = lseek(fd, 0, SEEK_CUR);
+  off_t length = lseek(fd, 0, SEEK_END);
+  lseek(fd, pos, SEEK_SET);
+  return length;
+}
+#endif
 
 int fhandle;
 FILE *out_file = NULL;
@@ -24,9 +39,9 @@ CValuePacker* packer = NULL;
 int levels = 7, f_len = 11, subblocks = 16;
 int reader_type = SND_READER_AUTO;
 char tp = 'O';
-int16_t* input_samples = NULL;
+short* input_samples = NULL;
 int32_t* coeffs = NULL;
-int16_t* block_to_pack = NULL;
+short* block_to_pack = NULL;
 int32_t block_size, sb_size, samples;
 double bps_limit;
 
@@ -54,7 +69,7 @@ int init(int maxlen, bool wavc_or_acm) {
 	samples = reader->get_samples_left();
 	sb_size = 1 << levels;
 	block_size = sb_size * subblocks;
-	ACM_Header hdr = {IP_ACM_SIG, 0, (uint16_t) reader->get_channels(), (uint16_t) reader->get_samplerate(), 0, 0};
+	ACM_Header hdr = {IP_ACM_SIG, 0, (unsigned short) reader->get_channels(), (unsigned short) reader->get_samplerate(), 0, 0};
 	hdr. samples = samples;
 	hdr. levels = levels;
 	hdr. subblocks = subblocks;
@@ -68,9 +83,9 @@ int init(int maxlen, bool wavc_or_acm) {
 		return 0;
 	}
 
-	input_samples = new int16_t [HATCH_SIZE];
+	input_samples = new short [HATCH_SIZE];
 	coeffs = new int32_t [HATCH_SIZE];
-	block_to_pack = new int16_t [block_size];
+	block_to_pack = new short [block_size];
 	if ( !input_samples || !coeffs || !block_to_pack) {
 		return 0;
 	};
@@ -85,7 +100,7 @@ void finalize2() {
 	if (block_to_pack) delete block_to_pack;
 }
 
-int ConvertWavAcm(int fh, int maxlen, FILE *foutp, bool wavc_or_acm)
+int ConvertWavAcm(int fh, int32_t maxlen, FILE *foutp, bool wavc_or_acm)
 {
 //  bps_limit=-1.0;
   try {
@@ -101,7 +116,7 @@ int ConvertWavAcm(int fh, int maxlen, FILE *foutp, bool wavc_or_acm)
     
     //Actual decoding section, with printf's removed
     int32_t left_to_pack = (int32_t)ceil((double)samples/block_size)*block_size;
-    int16_t* cur_block_pos = block_to_pack;
+    short* cur_block_pos = block_to_pack;
     int32_t ready_to_pack = 0;
     int32_t* tmp_coeffs_pos;
     int32_t left_to_filter = samples + coder->get_init_size();
@@ -123,7 +138,7 @@ int ConvertWavAcm(int fh, int maxlen, FILE *foutp, bool wavc_or_acm)
           warnings++;
           if (*tmp_coeffs_pos < max_minus_warn) max_minus_warn = *tmp_coeffs_pos;
         } else
-          *cur_block_pos = (int16_t) *tmp_coeffs_pos;
+          *cur_block_pos = (short) *tmp_coeffs_pos;
         ready_to_pack++;
         cur_block_pos++;
         if (ready_to_pack == block_size) {
@@ -138,7 +153,7 @@ int ConvertWavAcm(int fh, int maxlen, FILE *foutp, bool wavc_or_acm)
     }
     // at this point the block can be incompletely filled, we need to fill it with zero, and pack
     if (ready_to_pack) {
-      memset (cur_block_pos, 0, (block_size-ready_to_pack)*sizeof(int16_t));
+      memset (cur_block_pos, 0, (block_size-ready_to_pack)*sizeof(short));
       packer->add_one_block (block_to_pack);
       left_to_pack -= block_size;
     }
@@ -156,4 +171,48 @@ int ConvertWavAcm(int fh, int maxlen, FILE *foutp, bool wavc_or_acm)
   {
     return 4;
   }
+}
+
+static int strstartswith(char const *str, char const *prefix)
+{
+  return strncmp(str, prefix, strlen(prefix)) == 0;
+}
+
+
+int main(int argc, char **argv) {
+  if(argc < 3) {
+    printf("Minimal usage: binary infile outfile.\n");
+    return 1;
+  }
+
+  for(int idx = 0; idx < argc - 2; ++idx) {
+    for(char *ptr = argv[idx]; *ptr; ++ptr) {
+      *ptr = tolower(*ptr);
+    }
+  }
+
+  bool wavc_or_acm = false;
+
+  if(strstartswith(basename(argv[0]), "snd2acm")) {
+    wavc_or_acm = false;
+  } else if(strstartswith(basename(argv[0]), "wav2acm")) {
+    wavc_or_acm = false;
+  } else if(strstartswith(basename(argv[0]), "snd2wavc")) {
+    wavc_or_acm = true;
+  } else if(strstartswith(basename(argv[0]), "wav2wavc")) {
+    wavc_or_acm = true;
+  } else {
+    printf("Unknown binary name: %s\n", basename(argv[0]));
+    return 1;
+  }
+
+  FILE *finp = fopen(argv[argc - 2], "rb");
+  FILE *foutp = fopen(argv[argc - 1], "wb");
+
+  ConvertWavAcm(fileno(finp), -1, foutp, wavc_or_acm);
+
+  fclose(finp);
+  fclose(foutp);
+
+  return 0;
 }

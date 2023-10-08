@@ -1,15 +1,10 @@
 #include <cstdio>
-#include <cstring>
 #include <cctype>
 #include <libgen.h>
 
 #include "snd2acm.h"
+#include "portable-utils.h"
 
-
-static int strstartswith(char const *str, char const *prefix)
-{
-  return strncmp(str, prefix, strlen(prefix)) == 0;
-}
 
 int main(int argc, char **argv) {
   if(argc < 3) {
